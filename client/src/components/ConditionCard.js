@@ -1,22 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
+import { Paper } from "@material-ui/core";
+import Image from "material-ui-image";
+import Link from "@material-ui/core/Link";
 
 function ConditionCard(props) {
   const useStyles = makeStyles(() => ({
     root: {
       marginTop: 10,
-    },
-    media: {
-      height: 500,
-      width: "100%",
-    },
-    placeholderImage: {
-      width: "100%",
-      height: 500,
     },
   }));
   const classes = useStyles();
@@ -24,30 +19,57 @@ function ConditionCard(props) {
     value: { image, label, snippet },
   } = props;
 
-  const Image = (props) => {
+  const [state, setState] = useState({ expanded: false });
+  const { expanded } = state;
+
+  const ConditionImage = (props) => {
     return (
-      <img
-        className={classes.media}
-        src={props.image || "logo192.png"}
-        onError={(e) => {
-          e.target.onerror = null;
-          e.target.src = "http://localhost:3000/logo192.png";
-        }}
-      />
+      <Paper variant="outlined">
+        <Image src={props.image || "logo192.png"} />
+      </Paper>
+    );
+  };
+
+  const SnippetComponent = (props) => {
+    const { snippet } = props;
+    if (!snippet) {
+      return null;
+    }
+    if (!expanded && snippet.length > 25) {
+      const click = () => {
+        setState((prevState) => ({
+          ...prevState,
+          expanded: true,
+        }));
+      };
+      return (
+        <>
+          <Typography variant="body2" color="textSecondary" component="p">
+            {snippet.substring(0, 25)}
+          </Typography>
+          <Link onClick={click} component="button">
+            {" "}
+            find out more
+          </Link>
+        </>
+      );
+    }
+    return (
+      <Typography variant="body2" color="textSecondary" component="p">
+        {snippet}
+      </Typography>
     );
   };
 
   return (
     <>
       <Card className={classes.root}>
-        <Image image={image} label={label} />
+        <ConditionImage image={image} label={label} />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
             {label}
           </Typography>
-          <Typography variant="body2" color="textSecondary" component="p">
-            {snippet}
-          </Typography>
+          <SnippetComponent snippet={snippet} />
         </CardContent>
       </Card>
       <Divider />
